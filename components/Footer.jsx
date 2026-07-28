@@ -25,15 +25,20 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-3">Contact</h4>
             <ul className="space-y-2 text-sm text-purple-200">
-              <li>Chennai, Tamil Nadu</li>
+              <li>Anna Nagar, Chennai</li>
               <li>hello@zingdentistry.com</li>
-              <li>+91 XXXXX XXXXX</li>
+              <li>+91 98415 84996</li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-purple-700 mt-8 pt-6 text-center text-sm text-purple-300">
           © {new Date().getFullYear()} Zing Dentistry. All rights reserved.
+          <div className="mt-2">
+            <Link href="/admin/login" className="text-xs text-purple-400 hover:text-purple-200">
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,15 +1,150 @@
+import Link from 'next/link';
+import GalleryPreview from '@/components/GalleryPreview';
+
+const services = [
+  { title: 'General Dentistry', desc: 'Checkups, cleanings, and preventive care for the whole family.' },
+  { title: 'Cosmetic Dentistry', desc: 'Whitening, veneers, and smile makeovers.' },
+  { title: 'Orthodontics', desc: 'Braces and aligners for a straighter smile.' },
+  { title: 'Emergency Care', desc: 'Fast relief when you need it most.' },
+];
+
+const testimonials = [
+  { name: 'Priya S.', text: 'Painless, professional, and so friendly. Highly recommend!' },
+  { name: 'Arun K.', text: "Best dental experience I've had. Clean clinic, great staff." },
+  { name: 'Meena R.', text: 'They made my kids actually excited about going to the dentist.' },
+];
+
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-mist">
-      <div className="text-center px-6">
-        <h1 className="font-display text-4xl text-brand-plum mb-2">
-          Zing Dentistry
-        </h1>
-        <p className="text-brand-ink/70">
-          Project scaffold is live. Home page content coming in the next
-          component.
-        </p>
-      </div>
+    <main>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-purple-50 to-pink-50 py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold text-purple-900 mb-4">
+            Your Smile, Our Priority
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Gentle, modern dental care for the whole family — right here in Chennai.
+          </p>
+          <Link
+            href="/book"
+            className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-3 rounded-full transition-colors"
+          >
+            Book Your Appointment
+          </Link>
+        </div>
+      </section>
+
+      {/* Services overview */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-purple-900 text-center mb-10">
+            Our Services
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((s) => (
+              <div
+                key={s.title}
+                className="bg-white border border-pink-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <h3 className="font-semibold text-purple-800 mb-2">{s.title}</h3>
+                <p className="text-sm text-gray-600">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About / Doctor Intro */}
+      <section className="py-16 bg-purple-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div>
+            <img
+              src="/doctor-placeholder.jpg"
+              alt="Dr. V at Zing Dentistry"
+              className="rounded-2xl shadow-md w-full object-cover aspect-[4/3]"
+            />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-purple-900 mb-4">
+              Meet Your Dentist
+            </h2>
+            <p className="text-gray-600 mb-4">
+              With years of experience in family and cosmetic dentistry, Dr. V and
+              the Zing Dentistry team are committed to gentle, modern care for
+              every patient who walks through the door.
+            </p>
+            <ul className="space-y-2 text-gray-700">
+              <li>✓ BDS certified, years of clinical experience</li>
+              <li>✓ Family-friendly, patient-first approach</li>
+              <li>✓ Modern equipment & sterile, comfortable clinic</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-purple-900 text-center mb-10">
+            What Our Patients Say
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t) => (
+              <div key={t.name} className="bg-white border border-pink-100 rounded-xl p-6 shadow-sm">
+                <p className="text-gray-600 italic mb-4">&ldquo;{t.text}&rdquo;</p>
+                <p className="font-semibold text-purple-800">— {t.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Preview */}
+      <section className="py-16 bg-purple-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-purple-900 text-center mb-10">
+            Smile Transformations
+          </h2>
+          <GalleryPreview />
+        </div>
+      </section>
+
+      {/* Contact Strip */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+          <div>
+            <h3 className="font-semibold text-purple-900 mb-2">Location</h3>
+            <p className="text-gray-600">Chennai, Tamil Nadu</p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-purple-900 mb-2">Hours</h3>
+            <p className="text-gray-600">Mon–Sat: 10am – 8pm</p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-purple-900 mb-2">Phone</h3>
+            <p className="text-gray-600">+91 XXXXX XXXXX</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-purple-900 py-16">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+            Ready to book your visit?
+          </h2>
+          <p className="text-purple-200 mb-6">
+            Our team is ready to give you the care you deserve.
+          </p>
+          <Link
+            href="/book"
+            className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-3 rounded-full transition-colors"
+          >
+            Book Appointment
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
