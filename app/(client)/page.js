@@ -57,15 +57,15 @@ export default function Home() {
 
       {/* About / Doctor Intro */}
       <section className="py-16 bg-purple-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="order-2 md:order-2">
             <img
-              src="/doctor-placeholder.jpg"
+              src="/images/img1.jpeg"
               alt="Dr. V at Zing Dentistry"
-              className="rounded-2xl shadow-md w-full object-cover aspect-[4/3]"
+              className="rounded-2xl shadow-lg w-full object-contain max-w-sm mx-auto md:mx-0"
             />
           </div>
-          <div>
+          <div className="order-1 md:order-1">
             <h2 className="text-3xl font-bold text-purple-900 mb-4">
               Meet Your Dentist
             </h2>

@@ -11,11 +11,35 @@ const statusColor = {
   cancelled: 'text-red-500',
 };
 
+const getTodayStr = () => {
+  const d = new Date();
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+};
+
+const getMonthRange = () => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    start: start.toISOString().slice(0, 10),
+    end: end.toISOString().slice(0, 10),
+  };
+};
+
 export default function AdminPage() {
   const [session, setSession] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [stats, setStats] = useState({
+    todaysAppointments: 0,
+    totalPatients: 0,
+    treatmentsThisMonth: 0,
+    monthlyRevenue: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -36,7 +60,10 @@ export default function AdminPage() {
   }, [router]);
 
   useEffect(() => {
-    if (session) fetchAppointments();
+    if (session) {
+      fetchAppointments();
+      fetchStats();
+    }
   }, [session]);
 
   const fetchAppointments = async () => {
@@ -47,6 +74,48 @@ export default function AdminPage() {
       .order('created_at', { ascending: false });
     if (!error && data) setAppointments(data);
     setLoading(false);
+  };
+
+  const fetchStats = async () => {
+    setStatsLoading(true);
+    const todayStr = getTodayStr();
+    const { start: monthStart, end: monthEnd } = getMonthRange();
+
+    const [
+      { count: todaysAppointments },
+      { count: totalPatients },
+      { count: treatmentsThisMonth },
+      { data: revenueRows },
+    ] = await Promise.all([
+      supabase
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .eq('preferred_date', todayStr),
+      supabase.from('patients').select('*', { count: 'exact', head: true }),
+      supabase
+        .from('visits')
+        .select('*', { count: 'exact', head: true })
+        .gte('visit_date', monthStart)
+        .lte('visit_date', monthEnd),
+      supabase
+        .from('visits')
+        .select('amount_paid')
+        .gte('visit_date', monthStart)
+        .lte('visit_date', monthEnd),
+    ]);
+
+    const monthlyRevenue = (revenueRows || []).reduce(
+      (sum, row) => sum + (Number(row.amount_paid) || 0),
+      0
+    );
+
+    setStats({
+      todaysAppointments: todaysAppointments || 0,
+      totalPatients: totalPatients || 0,
+      treatmentsThisMonth: treatmentsThisMonth || 0,
+      monthlyRevenue,
+    });
+    setStatsLoading(false);
   };
 
   const updateStatus = async (id, status) => {
@@ -64,6 +133,37 @@ export default function AdminPage() {
   if (checkingAuth) {
     return <p className="text-center py-20 text-gray-500">Checking session…</p>;
   }
+
+  const statCards = [
+    {
+      label: "Today's Appointments",
+      value: stats.todaysAppointments,
+      bg: 'bg-blue-50',
+      text: 'text-blue-600',
+      icon: '📅',
+    },
+    {
+      label: 'Total Patients',
+      value: stats.totalPatients,
+      bg: 'bg-green-50',
+      text: 'text-green-600',
+      icon: '👥',
+    },
+    {
+      label: 'Treatments This Month',
+      value: stats.treatmentsThisMonth,
+      bg: 'bg-purple-50',
+      text: 'text-purple-600',
+      icon: '🦷',
+    },
+    {
+      label: 'Monthly Revenue',
+      value: `₹${stats.monthlyRevenue.toLocaleString('en-IN')}`,
+      bg: 'bg-orange-50',
+      text: 'text-orange-600',
+      icon: '₹',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-purple-50 py-10 px-4">
@@ -90,6 +190,26 @@ export default function AdminPage() {
               Log out
             </button>
           </div>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {statCards.map((card) => (
+            <div
+              key={card.label}
+              className="bg-white rounded-2xl shadow-sm border border-pink-100 p-5"
+            >
+              <div
+                className={`w-10 h-10 rounded-xl ${card.bg} ${card.text} flex items-center justify-center text-lg mb-3`}
+              >
+                {card.icon}
+              </div>
+              <p className="text-sm text-gray-500 mb-1">{card.label}</p>
+              <p className="text-xl font-bold text-purple-900">
+                {statsLoading ? '—' : card.value}
+              </p>
+            </div>
+          ))}
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 overflow-x-auto">
