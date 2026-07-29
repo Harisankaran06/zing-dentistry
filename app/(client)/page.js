@@ -61,7 +61,7 @@ export default function Home() {
           <div className="order-2 md:order-2">
             <img
               src="/images/img1.jpeg"
-              alt="Dr. V at Zing Dentistry"
+              alt="Dr. V "
               className="rounded-2xl shadow-lg w-full object-contain max-w-sm mx-auto md:mx-0"
             />
           </div>
