@@ -12,9 +12,17 @@ const statusColor = {
   cancelled: 'text-red-500',
 };
 
+// Formats a Date using its LOCAL year/month/day (no UTC conversion,
+// so no off-by-one-day bug in timezones ahead of UTC like IST).
+const formatLocalDate = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const getTodayStr = () => {
-  const d = new Date();
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+  return formatLocalDate(new Date());
 };
 
 const getMonthRange = () => {
@@ -22,8 +30,8 @@ const getMonthRange = () => {
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
   const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   return {
-    start: start.toISOString().slice(0, 10),
-    end: end.toISOString().slice(0, 10),
+    start: formatLocalDate(start),
+    end: formatLocalDate(end),
   };
 };
 

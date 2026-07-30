@@ -8,6 +8,15 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+// Formats a Date using its LOCAL year/month/day (no UTC conversion,
+// so no off-by-one-day bug in timezones ahead of UTC like IST).
+const formatLocalDate = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function MonthlyReportButton() {
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -17,8 +26,8 @@ export default function MonthlyReportButton() {
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const startDate = new Date(year, month - 1, 1).toISOString().slice(0, 10);
-      const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
+      const startDate = formatLocalDate(new Date(year, month - 1, 1));
+      const endDate = formatLocalDate(new Date(year, month, 0));
 
       const { data, error } = await supabase
         .from('visits')
