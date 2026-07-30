@@ -13,7 +13,8 @@ export default function PatientsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: '', contact_no: '', occupation: '', address: '', date_of_birth: '',
-    age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '', previous_dental_treatment: '',
+    age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '',
+    previous_dental_treatment: '', appointment_date: '',
   });
   const router = useRouter();
 
@@ -35,14 +36,22 @@ export default function PatientsPage() {
   const handleAdd = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const payload = { ...form, age: form.age ? parseInt(form.age, 10) : null };
+    const payload = {
+      ...form,
+      age: form.age ? parseInt(form.age, 10) : null,
+      appointment_date: form.appointment_date || null,
+    };
     const { error } = await supabase.from('patients').insert(payload);
     setSaving(false);
     if (error) {
       alert("Couldn't save the patient. Check required fields.");
       return;
     }
-    setForm({ name: '', contact_no: '', occupation: '', address: '', date_of_birth: '', age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '', previous_dental_treatment: '' });
+    setForm({
+      name: '', contact_no: '', occupation: '', address: '', date_of_birth: '',
+      age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '',
+      previous_dental_treatment: '', appointment_date: '',
+    });
     setShowForm(false);
     fetchPatients();
   };
@@ -80,6 +89,10 @@ export default function PatientsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Contact no.</label>
               <input value={form.contact_no} onChange={(e) => setForm({ ...form, contact_no: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Appointment date</label>
+              <input type="date" value={form.appointment_date} onChange={(e) => setForm({ ...form, appointment_date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
@@ -130,7 +143,11 @@ export default function PatientsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 border-b border-pink-100">
-                  <th className="py-2 pr-4">Name</th><th className="py-2 pr-4">Contact</th><th className="py-2 pr-4">Age / sex</th><th className="py-2 pr-4"></th>
+                  <th className="py-2 pr-4">Name</th>
+                  <th className="py-2 pr-4">Contact</th>
+                  <th className="py-2 pr-4">Age / sex</th>
+                  <th className="py-2 pr-4">Appointment</th>
+                  <th className="py-2 pr-4"></th>
                 </tr>
               </thead>
               <tbody>
@@ -139,6 +156,7 @@ export default function PatientsPage() {
                     <td className="py-3 pr-4 font-medium text-purple-900">{p.name}</td>
                     <td className="py-3 pr-4">{p.contact_no}</td>
                     <td className="py-3 pr-4">{p.age} / {p.sex}</td>
+                    <td className="py-3 pr-4">{p.appointment_date || '—'}</td>
                     <td className="py-3 pr-4">
                       <Link href={`/admin/patients/${p.id}`} className="text-pink-600 font-semibold">Open →</Link>
                     </td>

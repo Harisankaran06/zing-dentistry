@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import ReceiptButton from '@/components/ReceiptButton';
 
-const STORAGE_BUCKET = 'patient-images'; // change if your bucket is named differently
+const emptyPatientForm = {
+  name: '', contact_no: '', appointment_date: '', occupation: '', address: '',
+  date_of_birth: '', age: '', sex: 'Female', medical_history: '',
+  past_illness_allergy_surgery: '', previous_dental_treatment: '',
+};
 
 export default function PatientDetailPage() {
   const router = useRouter();
@@ -14,8 +18,11 @@ export default function PatientDetailPage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [patient, setPatient] = useState(null);
   const [visits, setVisits] = useState([]);
-  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [editMode, setEditMode] = useState(false);
+  const [savingPatient, setSavingPatient] = useState(false);
+  const [patientForm, setPatientForm] = useState(emptyPatientForm);
 
   const [showVisitForm, setShowVisitForm] = useState(false);
   const [savingVisit, setSavingVisit] = useState(false);
@@ -24,11 +31,6 @@ export default function PatientDetailPage() {
     treatment_plan: '', treatment_done: '', amount_charged: '',
     amount_paid: '', payment_mode: 'Cash', consent_given: false, notes: '',
   });
-
-  const [uploading, setUploading] = useState(false);
-  const [imageLabel, setImageLabel] = useState('Before');
-  const [imageIsPublic, setImageIsPublic] = useState(false);
-  const [imageVisitId, setImageVisitId] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -43,15 +45,54 @@ export default function PatientDetailPage() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [{ data: p }, { data: v }, { data: img }] = await Promise.all([
+    const [{ data: p }, { data: v }] = await Promise.all([
       supabase.from('patients').select('*').eq('id', id).single(),
       supabase.from('visits').select('*').eq('patient_id', id).order('visit_date', { ascending: false }),
-      supabase.from('images').select('*').eq('patient_id', id).order('created_at', { ascending: false }),
     ]);
     setPatient(p || null);
+    if (p) {
+      setPatientForm({
+        name: p.name || '',
+        contact_no: p.contact_no || '',
+        appointment_date: p.appointment_date || '',
+        occupation: p.occupation || '',
+        address: p.address || '',
+        date_of_birth: p.date_of_birth || '',
+        age: p.age ?? '',
+        sex: p.sex || 'Female',
+        medical_history: p.medical_history || '',
+        past_illness_allergy_surgery: p.past_illness_allergy_surgery || '',
+        previous_dental_treatment: p.previous_dental_treatment || '',
+      });
+    }
     setVisits(v || []);
-    setImages(img || []);
     setLoading(false);
+  };
+
+  const handleSavePatient = async (e) => {
+    e.preventDefault();
+    setSavingPatient(true);
+    const payload = {
+      name: patientForm.name,
+      contact_no: patientForm.contact_no,
+      appointment_date: patientForm.appointment_date || null,
+      occupation: patientForm.occupation,
+      address: patientForm.address,
+      date_of_birth: patientForm.date_of_birth || null,
+      age: patientForm.age ? parseInt(patientForm.age, 10) : null,
+      sex: patientForm.sex,
+      medical_history: patientForm.medical_history,
+      past_illness_allergy_surgery: patientForm.past_illness_allergy_surgery,
+      previous_dental_treatment: patientForm.previous_dental_treatment,
+    };
+    const { error } = await supabase.from('patients').update(payload).eq('id', id);
+    setSavingPatient(false);
+    if (error) {
+      alert("Couldn't save patient details. Check required fields.");
+      return;
+    }
+    setEditMode(false);
+    fetchAll();
   };
 
   const handleAddVisit = async (e) => {
@@ -85,44 +126,6 @@ export default function PatientDetailPage() {
     fetchAll();
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-
-    const filePath = `${id}/${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(filePath, file);
-
-    if (uploadError) {
-      setUploading(false);
-      alert("Upload failed: " + uploadError.message);
-      return;
-    }
-
-    const { error: insertError } = await supabase.from('images').insert({
-      patient_id: id,
-      visit_id: imageVisitId || null,
-      storage_path: filePath,
-      label: imageLabel,
-      is_public: imageIsPublic,
-    });
-
-    setUploading(false);
-    if (insertError) {
-      alert("Image uploaded but couldn't save its record. Contact support.");
-      return;
-    }
-    e.target.value = '';
-    fetchAll();
-  };
-
-  const getImageUrl = (storagePath) => {
-    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(storagePath);
-    return data?.publicUrl;
-  };
-
   if (checkingAuth || loading) {
     return <p className="text-center py-20 text-gray-500">Loading…</p>;
   }
@@ -145,21 +148,96 @@ export default function PatientDetailPage() {
 
         {/* Patient info card */}
         <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-purple-900 mb-4">Patient details</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <p><span className="text-gray-500">Contact:</span> {patient.contact_no}</p>
-            <p><span className="text-gray-500">Age / Sex:</span> {patient.age} / {patient.sex}</p>
-            <p><span className="text-gray-500">Occupation:</span> {patient.occupation || '—'}</p>
-            <p><span className="text-gray-500">DOB:</span> {patient.date_of_birth || '—'}</p>
-            <p className="sm:col-span-2"><span className="text-gray-500">Address:</span> {patient.address || '—'}</p>
-            <p className="sm:col-span-2"><span className="text-gray-500">Medical history:</span> {patient.medical_history || '—'}</p>
-            <p className="sm:col-span-2"><span className="text-gray-500">Past illness/allergy/surgery:</span> {patient.past_illness_allergy_surgery || '—'}</p>
-            <p className="sm:col-span-2"><span className="text-gray-500">Previous dental treatment:</span> {patient.previous_dental_treatment || '—'}</p>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-purple-900">Patient details</h2>
+            {!editMode && (
+              <button
+                onClick={() => setEditMode(true)}
+                className="bg-white border border-pink-200 text-purple-800 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-pink-50"
+              >
+                Edit
+              </button>
+            )}
           </div>
+
+          {editMode ? (
+            <form onSubmit={handleSavePatient} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Patient's name</label>
+                <input value={patientForm.name} onChange={(e) => setPatientForm({ ...patientForm, name: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact no.</label>
+                <input value={patientForm.contact_no} onChange={(e) => setPatientForm({ ...patientForm, contact_no: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Appointment date</label>
+                <input type="date" value={patientForm.appointment_date} onChange={(e) => setPatientForm({ ...patientForm, appointment_date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+                <input value={patientForm.occupation} onChange={(e) => setPatientForm({ ...patientForm, occupation: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                <input type="number" value={patientForm.age} onChange={(e) => setPatientForm({ ...patientForm, age: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                <select value={patientForm.sex} onChange={(e) => setPatientForm({ ...patientForm, sex: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2">
+                  <option>Female</option><option>Male</option><option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date of birth</label>
+                <input type="date" value={patientForm.date_of_birth} onChange={(e) => setPatientForm({ ...patientForm, date_of_birth: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <input value={patientForm.address} onChange={(e) => setPatientForm({ ...patientForm, address: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Medical history</label>
+                <textarea value={patientForm.medical_history} onChange={(e) => setPatientForm({ ...patientForm, medical_history: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Past illness / allergy / surgery</label>
+                <textarea value={patientForm.past_illness_allergy_surgery} onChange={(e) => setPatientForm({ ...patientForm, past_illness_allergy_surgery: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Previous dental treatment</label>
+                <textarea value={patientForm.previous_dental_treatment} onChange={(e) => setPatientForm({ ...patientForm, previous_dental_treatment: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
+              </div>
+              <div className="sm:col-span-2 flex gap-3">
+                <button type="submit" disabled={savingPatient} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-2 rounded-full disabled:opacity-60">
+                  {savingPatient ? 'Saving…' : 'Save changes'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEditMode(false); fetchAll(); }}
+                  className="bg-white border border-gray-200 text-gray-700 font-semibold px-6 py-2 rounded-full"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <p><span className="text-gray-500">Contact:</span> {patient.contact_no}</p>
+              <p><span className="text-gray-500">Appointment date:</span> {patient.appointment_date || '—'}</p>
+              <p><span className="text-gray-500">Age / Sex:</span> {patient.age} / {patient.sex}</p>
+              <p><span className="text-gray-500">Occupation:</span> {patient.occupation || '—'}</p>
+              <p><span className="text-gray-500">DOB:</span> {patient.date_of_birth || '—'}</p>
+              <p className="sm:col-span-2"><span className="text-gray-500">Address:</span> {patient.address || '—'}</p>
+              <p className="sm:col-span-2"><span className="text-gray-500">Medical history:</span> {patient.medical_history || '—'}</p>
+              <p className="sm:col-span-2"><span className="text-gray-500">Past illness/allergy/surgery:</span> {patient.past_illness_allergy_surgery || '—'}</p>
+              <p className="sm:col-span-2"><span className="text-gray-500">Previous dental treatment:</span> {patient.previous_dental_treatment || '—'}</p>
+            </div>
+          )}
         </div>
 
         {/* Visit history + add visit */}
-        <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-purple-900">Visit history</h2>
             <button
@@ -238,52 +316,6 @@ export default function PatientDetailPage() {
                   <p className="text-sm text-gray-700 mb-2"><span className="text-gray-500">Done:</span> {v.treatment_done || '—'}</p>
                   <div className="flex justify-end">
                     <ReceiptButton patient={patient} visit={v} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Before/after images */}
-        <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6">
-          <h2 className="text-lg font-semibold text-purple-900 mb-4">Before / after photos</h2>
-
-          <div className="flex flex-wrap gap-3 items-end mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
-              <select value={imageLabel} onChange={(e) => setImageLabel(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm">
-                <option>Before</option><option>After</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Link to visit</label>
-              <select value={imageVisitId} onChange={(e) => setImageVisitId(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm">
-                <option value="">None</option>
-                {visits.map((v) => <option key={v.id} value={v.id}>{v.visit_date}</option>)}
-              </select>
-            </div>
-            <label className="flex items-center gap-2 text-sm text-gray-700 pb-2">
-              <input type="checkbox" checked={imageIsPublic} onChange={(e) => setImageIsPublic(e.target.checked)} />
-              Show on public gallery
-            </label>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Upload photo</label>
-              <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className="text-sm" />
-            </div>
-          </div>
-          {uploading && <p className="text-sm text-gray-500 mb-4">Uploading…</p>}
-
-          {images.length === 0 ? (
-            <p className="text-gray-500 text-sm">No photos uploaded yet.</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {images.map((img) => (
-                <div key={img.id} className="rounded-lg overflow-hidden border border-pink-50">
-                  <img src={getImageUrl(img.storage_path)} alt={img.label} className="w-full h-32 object-cover" />
-                  <div className="p-2 text-xs text-gray-600 flex justify-between">
-                    <span>{img.label}</span>
-                    {img.is_public && <span className="text-pink-500 font-semibold">Public</span>}
                   </div>
                 </div>
               ))}

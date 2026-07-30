@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
+import MonthlyReportButton from '@/components/MonthlyReportButton';
 
 const statusColor = {
   pending: 'text-yellow-600',
@@ -118,10 +119,97 @@ export default function AdminPage() {
     setStatsLoading(false);
   };
 
+  // Finds a matching patient by mobile number, or creates a new one,
+  // then links the appointment to that patient via patient_id.
+  // Also keeps the patient's appointment_date in sync with this appointment.
+  const ensurePatientForAppointment = async (appointment) => {
+    // Already linked to a patient? Just make sure their appointment_date is up to date.
+    if (appointment.patient_id) {
+      const { error: updateError } = await supabase
+        .from('patients')
+        .update({ appointment_date: appointment.preferred_date })
+        .eq('id', appointment.patient_id);
+
+      if (updateError) {
+        console.error(updateError);
+      }
+      return;
+    }
+
+    // Avoid duplicates: look for an existing patient with the same contact number.
+    const { data: existingMatches, error: findError } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('contact_no', appointment.mobile_no)
+      .limit(1);
+
+    if (findError) {
+      console.error(findError);
+      return;
+    }
+
+    let patientId = existingMatches && existingMatches.length > 0 ? existingMatches[0].id : null;
+    let createdNew = false;
+
+    if (!patientId) {
+      const { data: newPatient, error: insertError } = await supabase
+        .from('patients')
+        .insert({
+          name: appointment.name,
+          contact_no: appointment.mobile_no,
+          appointment_date: appointment.preferred_date,
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error(insertError);
+        return;
+      }
+      patientId = newPatient.id;
+      createdNew = true;
+    } else {
+      // Matched an existing patient — still stamp their latest appointment date.
+      const { error: updateError } = await supabase
+        .from('patients')
+        .update({ appointment_date: appointment.preferred_date })
+        .eq('id', patientId);
+
+      if (updateError) {
+        console.error(updateError);
+      }
+    }
+
+    const { error: linkError } = await supabase
+      .from('appointments')
+      .update({ patient_id: patientId })
+      .eq('id', appointment.id);
+
+    if (linkError) {
+      console.error(linkError);
+      return;
+    }
+
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === appointment.id ? { ...a, patient_id: patientId } : a))
+    );
+
+    if (createdNew) {
+      setStats((prev) => ({ ...prev, totalPatients: prev.totalPatients + 1 }));
+    }
+  };
+
   const updateStatus = async (id, status) => {
+    const appointment = appointments.find((a) => a.id === id);
+
     const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
-    if (!error) {
-      setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    if (error) return;
+
+    setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+
+    // Only add to the patient list once the appointment is confirmed.
+    if (status === 'confirmed' && appointment) {
+      await ensurePatientForAppointment(appointment);
     }
   };
 
@@ -170,7 +258,8 @@ export default function AdminPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
           <h1 className="text-2xl font-bold text-purple-900">Admin dashboard</h1>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            <MonthlyReportButton />
             <Link
               href="/admin/patients"
               className="bg-white border border-pink-200 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold hover:bg-pink-50"
