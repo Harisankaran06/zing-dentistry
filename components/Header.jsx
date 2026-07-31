@@ -1,15 +1,16 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/services', label: 'Services' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/#services', label: 'Services' },
+    { href: '/#about', label: 'About' },
+    { href: '/#contact', label: 'Contact' },
   ];
 
   return (
@@ -17,8 +18,15 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-purple-700">
-            Zing Dentistry
+          <Link href="/" className="flex items-center h-full py-2">
+            <Image
+              src="/logo/zing-logo.png"
+              alt="Zing Dentistry"
+              width={160}
+              height={169}
+              className="h-full w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -16,9 +16,9 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/" className="hover:text-white">Home</Link></li>
-              <li><Link href="/services" className="hover:text-white">Services</Link></li>
-              <li><Link href="/about" className="hover:text-white">About</Link></li>
-              <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+              <li><Link href="/#services" className="hover:text-white">Services</Link></li>
+              <li><Link href="/#about" className="hover:text-white">About</Link></li>
+              <li><Link href="/#contact" className="hover:text-white">Contact</Link></li>
             </ul>
           </div>
 
