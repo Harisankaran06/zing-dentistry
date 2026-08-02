@@ -1,12 +1,65 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
+import {
+  Sparkles,
+  Smile,
+  Wand2,
+  Zap,
+  Wrench,
+  Stethoscope,
+  Baby,
+  ShieldPlus,
+  Gem,
+} from 'lucide-react';
 import GalleryPreview from '@/components/GalleryPreview';
 import Reveal from '@/components/Reveal';
 
 const services = [
-  { title: 'General Dentistry', desc: 'Checkups, cleanings, and preventive care for the whole family.' },
-  { title: 'Cosmetic Dentistry', desc: 'Whitening, veneers, and smile makeovers.' },
-  { title: 'Orthodontics', desc: 'Braces and aligners for a straighter smile.' },
-  { title: 'Emergency Care', desc: 'Fast relief when you need it most.' },
+  {
+    title: 'General Dentistry',
+    desc: 'Routine checkups, cleanings, fillings, and preventive care to maintain your oral health.',
+    icon: Smile,
+  },
+  {
+    title: 'Teeth Whitening',
+    desc: 'Professional whitening treatments that brighten your smile by up to 8 shades safely.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Smile Makeover',
+    desc: 'Complete smile transformations using veneers, bonding, and cosmetic procedures.',
+    icon: Wand2,
+  },
+  {
+    title: 'Dental Implants',
+    desc: 'Permanent tooth replacement solutions that look, feel, and function like natural teeth.',
+    icon: Zap,
+  },
+  {
+    title: 'Orthodontics',
+    desc: 'Braces and invisible aligners to straighten teeth and correct bite issues at any age.',
+    icon: Wrench,
+    featured: true,
+  },
+  {
+    title: 'Root Canal',
+    desc: 'Pain-free root canal therapy using advanced techniques to save your natural teeth.',
+    icon: ShieldPlus,
+  },
+  {
+    title: 'Pediatric Dentistry',
+    desc: 'Child-friendly dental care in a warm environment that makes kids love visiting the dentist.',
+    icon: Baby,
+  },
+  {
+    title: 'Oral Surgery',
+    desc: 'Wisdom tooth extractions, surgical procedures performed with precision and minimal discomfort.',
+    icon: Stethoscope,
+  },
+  {
+    title: 'Veneers & Crowns',
+    desc: 'Custom porcelain veneers and crowns that restore and enhance your smile beautifully.',
+    icon: Gem,
+  },
 ];
 
 const testimonials = [
@@ -50,15 +103,27 @@ export default function Home() {
               Our Services
             </h2>
           </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((s, i) => (
-              <Reveal key={s.title} delay={i * 100}>
-                <div className="bg-white border border-pink-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full">
-                  <h3 className="font-semibold text-purple-800 mb-2">{s.title}</h3>
-                  <p className="text-sm text-gray-600">{s.desc}</p>
-                </div>
-              </Reveal>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <Reveal key={s.title} delay={i * 60}>
+                  <div
+                    className={`bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full border ${
+                      s.featured
+                        ? 'border-2 border-purple-500 ring-1 ring-pink-300'
+                        : 'border-gray-100'
+                    }`}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-purple-700" strokeWidth={1.75} />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2">{s.title}</h3>
+                    <p className="text-sm text-gray-500">{s.desc}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -139,7 +204,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={200}>
             <h3 className="font-semibold text-purple-900 mb-2">Phone</h3>
-            <p className="text-gray-600">+91 XXXXX XXXXX</p>
+            <p className="text-gray-600">+91 98415 84996</p>
           </Reveal>
         </div>
       </section>
