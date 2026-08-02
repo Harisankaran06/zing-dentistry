@@ -55,7 +55,7 @@ export default function MonthlyReportButton() {
       }));
 
       const monthLabel = MONTHS[month - 1] + ' ' + year;
-      generateMonthlyReport(visits, monthLabel);
+      await generateMonthlyReport(visits, monthLabel);
     } catch (err) {
       alert('Something went wrong while generating the report.');
     } finally {

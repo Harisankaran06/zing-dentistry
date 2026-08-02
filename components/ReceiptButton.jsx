@@ -2,8 +2,8 @@
 import { generateReceipt } from '@/lib/generateReceipt';
 
 export default function ReceiptButton({ patient, visit }) {
-  const handleDownload = () => {
-    generateReceipt(patient, visit);
+  const handleDownload = async () => {
+    await generateReceipt(patient, visit);
   };
 
   return (
