@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -88,7 +88,8 @@ export default function PatientDetailPage() {
     const { error } = await supabase.from('patients').update(payload).eq('id', id);
     setSavingPatient(false);
     if (error) {
-      alert("Couldn't save patient details. Check required fields.");
+      console.error('Patient update error:', error);
+      alert(`Couldn't save patient details: ${error.message}`);
       return;
     }
     setEditMode(false);
@@ -114,7 +115,8 @@ export default function PatientDetailPage() {
     const { error } = await supabase.from('visits').insert(payload);
     setSavingVisit(false);
     if (error) {
-      alert("Couldn't save the visit. Check required fields.");
+      console.error('Visit insert error:', error);
+      alert(`Couldn't save the visit: ${error.message}`);
       return;
     }
     setVisitForm({

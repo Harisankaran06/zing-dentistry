@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -29,7 +29,10 @@ export default function PatientsPage() {
   useEffect(() => { if (session) fetchPatients(); }, [session]);
 
   const fetchPatients = async () => {
-    const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*, visits(count)')
+      .order('created_at', { ascending: false });
     if (!error && data) setPatients(data);
   };
 
@@ -151,17 +154,27 @@ export default function PatientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => (
-                  <tr key={p.id} className="border-b border-pink-50">
-                    <td className="py-3 pr-4 font-medium text-purple-900">{p.name}</td>
-                    <td className="py-3 pr-4">{p.contact_no}</td>
-                    <td className="py-3 pr-4">{p.age} / {p.sex}</td>
-                    <td className="py-3 pr-4">{p.appointment_date || '—'}</td>
-                    <td className="py-3 pr-4">
-                      <Link href={`/admin/patients/${p.id}`} className="text-pink-600 font-semibold">Open →</Link>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((p) => {
+                  const visitCount = p.visits?.[0]?.count ?? 0;
+                  return (
+                    <tr key={p.id} className="border-b border-pink-50">
+                      <td className="py-3 pr-4 font-medium text-purple-900">
+                        {p.name}
+                        {visitCount > 0 && (
+                          <span className="ml-2 inline-block text-xs font-semibold text-purple-600 bg-purple-100 rounded-full px-2 py-0.5">
+                            {visitCount} visit{visitCount === 1 ? '' : 's'}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4">{p.contact_no}</td>
+                      <td className="py-3 pr-4">{p.age} / {p.sex}</td>
+                      <td className="py-3 pr-4">{p.appointment_date || '—'}</td>
+                      <td className="py-3 pr-4">
+                        <Link href={`/admin/patients/${p.id}`} className="text-pink-600 font-semibold">Open →</Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

@@ -78,7 +78,7 @@ export default function Home() {
               Meet Your Dentist
             </h2>
             <p className="text-gray-600 mb-4">
-              With years of experience in family and cosmetic dentistry, Dr. V and
+              With years of experience in family and cosmetic dentistry, Dr. Vidya and
               the Zing Dentistry team are committed to gentle, modern care for
               every patient who walks through the door.
             </p>
