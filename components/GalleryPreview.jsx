@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -10,7 +10,7 @@ export default function GalleryPreview() {
     const fetchTransformations = async () => {
       const { data, error } = await supabase
         .from('transformations')
-        .select('title, before_path, after_path')
+        .select('title, description, category, before_path, after_path')
         .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(6);
@@ -39,24 +39,33 @@ export default function GalleryPreview() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
       {transformations.map((t, i) => (
-        <div key={i} className="rounded-xl overflow-hidden shadow-sm bg-white">
+        <div key={i} className="rounded-2xl overflow-hidden shadow-sm bg-white border border-gray-100">
           <div className="grid grid-cols-2">
-            <div className="relative">
-              <img src={t.beforeUrl} alt="Before" className="w-full h-40 object-cover" />
-              <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
-                Before
-              </span>
+            <div>
+              <img src={t.beforeUrl} alt="Before" className="w-full h-48 object-cover" />
+              <div className="bg-red-400 text-white text-center text-sm font-bold tracking-wide py-2">
+                BEFORE
+              </div>
             </div>
-            <div className="relative">
-              <img src={t.afterUrl} alt="After" className="w-full h-40 object-cover" />
-              <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
-                After
-              </span>
+            <div>
+              <img src={t.afterUrl} alt="After" className="w-full h-48 object-cover" />
+              <div className="bg-teal-500 text-white text-center text-sm font-bold tracking-wide py-2">
+                AFTER
+              </div>
             </div>
           </div>
-          {t.title && <p className="text-center text-sm text-gray-700 py-2 px-2">{t.title}</p>}
+
+          <div className="p-5">
+            {t.category && (
+              <span className="inline-block bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-3">
+                {t.category}
+              </span>
+            )}
+            {t.title && <h3 className="text-lg font-bold text-gray-900 mb-1">{t.title}</h3>}
+            {t.description && <p className="text-sm text-gray-500">{t.description}</p>}
+          </div>
         </div>
       ))}
     </div>
