@@ -1,22 +1,20 @@
-﻿'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+'use client';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Plus, Search, User, Phone, Calendar, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import AddPatientModal from '@/components/admin/AddPatientModal';
 
-export default function PatientsPage() {
+function PatientsListContent() {
   const [session, setSession] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [patients, setPatients] = useState([]);
   const [query, setQuery] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    name: '', contact_no: '', occupation: '', address: '', date_of_birth: '',
-    age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '',
-    previous_dental_treatment: '', appointment_date: '',
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -26,7 +24,16 @@ export default function PatientsPage() {
     });
   }, [router]);
 
-  useEffect(() => { if (session) fetchPatients(); }, [session]);
+  useEffect(() => {
+    const q = searchParams.get('query');
+    if (q !== null) {
+      setQuery(q);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (session) fetchPatients();
+  }, [session]);
 
   const fetchPatients = async () => {
     const { data, error } = await supabase
@@ -36,150 +43,176 @@ export default function PatientsPage() {
     if (!error && data) setPatients(data);
   };
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    const payload = {
-      ...form,
-      age: form.age ? parseInt(form.age, 10) : null,
-      appointment_date: form.appointment_date || null,
-    };
-    const { error } = await supabase.from('patients').insert(payload);
-    setSaving(false);
-    if (error) {
-      alert("Couldn't save the patient. Check required fields.");
-      return;
-    }
-    setForm({
-      name: '', contact_no: '', occupation: '', address: '', date_of_birth: '',
-      age: '', sex: 'Female', medical_history: '', past_illness_allergy_surgery: '',
-      previous_dental_treatment: '', appointment_date: '',
-    });
-    setShowForm(false);
-    fetchPatients();
-  };
-
-  const filtered = patients.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = patients.filter((p) => {
+    const q = query.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      (p.contact_no && p.contact_no.includes(q)) ||
+      (p.occupation && p.occupation.toLowerCase().includes(q))
+    );
+  });
 
   if (checkingAuth) return <p className="text-center py-20 text-gray-500">Checking session…</p>;
 
   return (
-    <div className="min-h-screen bg-purple-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-purple-900">Patients</h1>
-          <Link href="/admin" className="text-sm font-semibold text-purple-800">← Back to dashboard</Link>
+    <div className="max-w-6xl mx-auto space-y-6 py-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-serif font-bold text-[#3D1F5C]">Patients Directory</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Total {patients.length} registered patient{patients.length === 1 ? '' : 's'}
+          </p>
         </div>
 
-        <div className="flex justify-between items-center mb-4 gap-3">
-          <input
-            placeholder="Search by name"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs"
-          />
-          <button onClick={() => setShowForm(!showForm)} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded-full text-sm whitespace-nowrap">
-            + New patient
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-[#F0507B] hover:bg-[#e13f68] text-white font-medium px-5 py-2.5 rounded-full text-sm transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Patient</span>
           </button>
         </div>
+      </div>
 
-        {showForm && (
-          <form onSubmit={handleAdd} className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Patient's name</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contact no.</label>
-              <input value={form.contact_no} onChange={(e) => setForm({ ...form, contact_no: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Appointment date</label>
-              <input type="date" value={form.appointment_date} onChange={(e) => setForm({ ...form, appointment_date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
-              <input value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-              <input type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
-              <select value={form.sex} onChange={(e) => setForm({ ...form, sex: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2">
-                <option>Female</option><option>Male</option><option>Other</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of birth</label>
-              <input type="date" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Medical history</label>
-              <textarea value={form.medical_history} onChange={(e) => setForm({ ...form, medical_history: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Past illness / allergy / surgery</label>
-              <textarea value={form.past_illness_allergy_surgery} onChange={(e) => setForm({ ...form, past_illness_allergy_surgery: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Previous dental treatment</label>
-              <textarea value={form.previous_dental_treatment} onChange={(e) => setForm({ ...form, previous_dental_treatment: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2" rows={2} />
-            </div>
-            <div className="sm:col-span-2">
-              <button type="submit" disabled={saving} className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-2 rounded-full disabled:opacity-60">
-                {saving ? 'Saving…' : 'Save patient'}
-              </button>
-            </div>
-          </form>
+      {/* Search & Filter Strip */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Search patients by name, phone number, or occupation..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F0507B]/30 focus:border-[#F0507B]"
+          />
+        </div>
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="text-xs text-gray-500 hover:text-gray-700 px-3 py-2"
+          >
+            Clear filter
+          </button>
         )}
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-6">
-          {filtered.length === 0 ? (
-            <p className="text-gray-500 text-sm">No patients yet.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b border-pink-100">
-                  <th className="py-2 pr-4">Name</th>
-                  <th className="py-2 pr-4">Contact</th>
-                  <th className="py-2 pr-4">Age / sex</th>
-                  <th className="py-2 pr-4">Appointment</th>
-                  <th className="py-2 pr-4"></th>
+      {/* Patients Table Card */}
+      <div className="bg-white rounded-2xl shadow-sm border border-pink-100 overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="p-12 text-center">
+            <User className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-600 font-medium">No patients found</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {query ? 'Try matching a different search term' : 'Get started by adding your first patient'}
+            </p>
+            {!query && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 bg-[#F0507B] text-white font-medium px-5 py-2 rounded-full text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                Add Patient
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-[#FBF7F5] border-b border-pink-100 text-xs font-semibold uppercase tracking-wider text-[#3D1F5C]/70">
+                <tr>
+                  <th className="py-3.5 px-6">Patient Name</th>
+                  <th className="py-3.5 px-6">Contact Number</th>
+                  <th className="py-3.5 px-6">Demographics</th>
+                  <th className="py-3.5 px-6">Last / Appt Date</th>
+                  <th className="py-3.5 px-6 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-pink-50">
                 {filtered.map((p) => {
                   const visitCount = p.visits?.[0]?.count ?? 0;
                   return (
-                    <tr key={p.id} className="border-b border-pink-50">
-                      <td className="py-3 pr-4 font-medium text-purple-900">
-                        {p.name}
-                        {visitCount > 0 && (
-                          <span className="ml-2 inline-block text-xs font-semibold text-purple-600 bg-purple-100 rounded-full px-2 py-0.5">
-                            {visitCount} visit{visitCount === 1 ? '' : 's'}
+                    <tr key={p.id} className="hover:bg-pink-50/30 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-purple-100 text-[#3D1F5C] font-semibold flex items-center justify-center text-sm shrink-0">
+                            {p.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <Link
+                              href={`/admin/patients/${p.id}`}
+                              className="font-semibold text-[#3D1F5C] hover:text-[#F0507B] transition-colors"
+                            >
+                              {p.name}
+                            </Link>
+                            {visitCount > 0 && (
+                              <span className="ml-2 inline-block text-[11px] font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">
+                                {visitCount} visit{visitCount === 1 ? '' : 's'}
+                              </span>
+                            )}
+                            {p.occupation && (
+                              <p className="text-xs text-gray-400 mt-0.5">{p.occupation}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-gray-600 font-medium">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-gray-400" />
+                          <span>{p.contact_no}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">
+                        {p.age || p.sex ? (
+                          <span>
+                            {p.age ? `${p.age} yrs` : ''} {p.sex ? `· ${p.sex}` : ''}
                           </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
                         )}
                       </td>
-                      <td className="py-3 pr-4">{p.contact_no}</td>
-                      <td className="py-3 pr-4">{p.age} / {p.sex}</td>
-                      <td className="py-3 pr-4">{p.appointment_date || '—'}</td>
-                      <td className="py-3 pr-4">
-                        <Link href={`/admin/patients/${p.id}`} className="text-pink-600 font-semibold">Open →</Link>
+                      <td className="py-4 px-6 text-gray-600">
+                        {p.appointment_date ? (
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-[#F0507B]" />
+                            <span>{p.appointment_date}</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <Link
+                          href={`/admin/patients/${p.id}`}
+                          className="inline-flex items-center gap-1 text-sm font-semibold text-[#F0507B] hover:text-[#e13f68]"
+                        >
+                          View Record <ArrowRight className="w-4 h-4" />
+                        </Link>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      <AddPatientModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          fetchPatients();
+        }}
+      />
     </div>
+  );
+}
+
+export default function PatientsPage() {
+  return (
+    <Suspense fallback={<p className="text-center py-20 text-gray-500">Loading directory...</p>}>
+      <PatientsListContent />
+    </Suspense>
   );
 }

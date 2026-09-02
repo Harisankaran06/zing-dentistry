@@ -61,6 +61,18 @@ create table images (
   created_at timestamptz default now()
 );
 
+-- 5. TRANSFORMATIONS (before/after smile gallery pairs)
+create table transformations (
+  id uuid primary key default gen_random_uuid(),
+  title text,
+  description text,
+  category text,
+  before_path text not null,
+  after_path text not null,
+  is_public boolean default true,
+  created_at timestamptz default now()
+);
+
 -- ============================================================
 -- Indexes for common lookups
 -- ============================================================
@@ -72,13 +84,14 @@ create index idx_appointments_status on appointments(status);
 -- ============================================================
 -- Row Level Security
 -- Public site can only INSERT appointments (booking form) and
--- SELECT images where is_public = true (gallery).
--- Everything else requires an authenticated admin (your sister's login).
+-- SELECT images/transformations where is_public = true (gallery).
+-- Everything else requires an authenticated admin.
 -- ============================================================
 alter table patients enable row level security;
 alter table visits enable row level security;
 alter table appointments enable row level security;
 alter table images enable row level security;
+alter table transformations enable row level security;
 
 -- Admin (authenticated) full access
 create policy "Admin full access - patients" on patients
@@ -89,11 +102,15 @@ create policy "Admin full access - appointments" on appointments
   for all using (auth.role() = 'authenticated');
 create policy "Admin full access - images" on images
   for all using (auth.role() = 'authenticated');
+create policy "Admin full access - transformations" on transformations
+  for all using (auth.role() = 'authenticated');
 
 -- Public: anyone can submit an appointment request
 create policy "Public can create appointments" on appointments
   for insert with check (true);
 
--- Public: anyone can view only images marked public (before/after gallery)
+-- Public: anyone can view only images/transformations marked public (before/after gallery)
 create policy "Public can view public images" on images
+  for select using (is_public = true);
+create policy "Public can view public transformations" on transformations
   for select using (is_public = true);
