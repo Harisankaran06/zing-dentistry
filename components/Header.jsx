@@ -52,7 +52,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center h-full py-2">
               <Image
-                src="/logo/zing-logo.png"
+                src="/logo/logo.new.PNG"
                 alt="Zing Dentistry"
                 width={170}
                 height={180}

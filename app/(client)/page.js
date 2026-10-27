@@ -287,7 +287,7 @@ export default function Home() {
               <div className="relative mx-auto max-w-sm">
                 <div className="absolute inset-0 bg-[#F0507B]/30 rounded-3xl blur-2xl transform rotate-3" />
                 <img
-                  src="/images/img1.jpeg"
+                  src="/images/img.new.PNG"
                   alt="Dr. Vidya - Zing Dentistry"
                   className="relative rounded-3xl shadow-2xl border-4 border-white/20 w-full object-cover max-h-[420px]"
                 />
