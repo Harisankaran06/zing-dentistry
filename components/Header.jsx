@@ -10,7 +10,7 @@ export default function Header() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/#services', label: 'Services' },
+    { href: '/services', label: 'Services' },
     { href: '/#about', label: 'About Doctor' },
     { href: '/#transformations', label: 'Transformations' },
     { href: '/#faq', label: 'FAQ' },
@@ -25,11 +25,11 @@ export default function Header() {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 opacity-90">
               <MapPin className="w-3.5 h-3.5 text-[#F0507B]" />
-              Annanagar East, Chennai
+              Anna Nagar East, Chennai
             </span>
             <span className="flex items-center gap-1.5 opacity-90">
               <Clock className="w-3.5 h-3.5 text-[#F0507B]" />
-              Mon–Sat: 10am – 8pm
+              Mon–Sat: 10:00 AM – 8:00 PM
             </span>
           </div>
 
@@ -53,7 +53,7 @@ export default function Header() {
             <Link href="/" className="flex items-center h-full py-2">
               <Image
                 src="/logo/logo.new.PNG"
-                alt="Zing Dentistry"
+                alt="Zing Dentistry - Dental Clinic in Anna Nagar East, Chennai"
                 width={170}
                 height={180}
                 className="h-14 w-auto object-contain"

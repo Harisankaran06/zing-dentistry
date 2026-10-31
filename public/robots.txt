@@ -1,0 +1,8 @@
+# robots.txt for Zing Dentistry (https://zingdentistry.in)
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://zingdentistry.in/sitemap.xml
+

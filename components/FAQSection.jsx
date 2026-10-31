@@ -3,44 +3,65 @@
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
-const FAQS = [
+export const FAQS = [
   {
-    q: 'Are treatments at Zing Dentistry painful?',
-    a: 'Not at all. We specialize in gentle, pain-free dental techniques. For procedures like root canals or extractions, we use advanced local anesthesia and gentle precision so you feel completely comfortable throughout.',
+    q: 'Where is Zing Dentistry located in Chennai?',
+    a: 'Zing Dentistry is centrally located in Anna Nagar East, Chennai, Tamil Nadu. We welcome patients and families from Anna Nagar East, Anna Nagar West, Shenoy Nagar, Kilpauk, and neighboring Chennai areas.',
+  },
+  {
+    q: 'How does Zing Dentistry ensure patient comfort during procedures?',
+    a: 'We prioritize patient comfort across all treatments. For procedures like root canals or extractions, we utilize effective local anesthesia and gentle techniques to minimize discomfort and ensure you feel relaxed and informed throughout your visit.',
   },
   {
     q: 'How long does laser teeth whitening last?',
     a: 'In-office laser whitening results typically last 1 to 2 years depending on lifestyle habits (such as coffee, tea, or smoking). We also provide customized home care guidance to maintain your bright smile.',
   },
   {
-    q: 'What is the advantage of invisible aligners over metal braces?',
+    q: 'What is the advantage of invisible clear aligners over metal braces?',
     a: 'Clear aligners are nearly invisible, removable for eating and brushing, and generally more comfortable since there are no metal wires or brackets to cause cheek irritation.',
   },
   {
     q: 'How often should my family visit the dentist?',
-    a: 'We recommend routine dental checkups and professional cleaning every 6 months. Early preventive care stops small cavities or gum issues from turning into complex procedures.',
+    a: 'We recommend routine dental checkups and professional ultrasonic cleaning every 6 months. Early preventive care stops small cavities or gum issues from turning into complex procedures.',
   },
   {
-    q: 'What safety and sterilization protocols do you follow?',
-    a: 'Your health is our highest priority. We use hospital-grade autoclaves, 100% disposable barrier consumables, single-use sterilized pouch packs, and strict infection control guidelines.',
+    q: 'What safety and sterilization protocols do you follow at Zing Dentistry?',
+    a: 'Your health is our highest priority. We use autoclave sterilization, disposable barrier consumables, sterilized pouch packs, and strict infection control protocols.',
   },
 ];
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(0);
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <section className="py-20 bg-gradient-to-b from-[#FBF7F5] to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-1.5 bg-[#F0507B]/10 text-[#F0507B] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-[#F0507B]/20 mb-3">
-            <HelpCircle className="w-3.5 h-3.5" /> FAQ Guide
+            <HelpCircle className="w-3.5 h-3.5" /> Patient FAQ Guide
           </span>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#3D1F5C]">
-            Frequently Asked Questions
+            Frequently Asked Dental Questions
           </h2>
           <p className="text-sm text-gray-600 mt-2 max-w-lg mx-auto">
-            Everything you need to know about our gentle dental care procedures and clinic visits.
+            Everything you need to know about our gentle dental care, root canals, teeth whitening, and clinic visits in Anna Nagar East.
           </p>
         </div>
 

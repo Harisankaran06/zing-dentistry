@@ -8,7 +8,7 @@ export default function BeforeAfterSlider({
   afterImage,
   title = 'Smile Transformation',
   category = 'Cosmetic Dentistry',
-  description = 'Painless procedure with natural aesthetics.',
+  description = 'Aesthetic dental procedure with natural results.',
 }) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
@@ -80,7 +80,7 @@ export default function BeforeAfterSlider({
         {/* AFTER IMAGE (Bottom layer, full width) */}
         <img
           src={afterImage}
-          alt="After treatment"
+          alt={`${title} - Completed smile transformation result at Zing Dentistry, Anna Nagar East`}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute bottom-3 right-3 bg-[#3D1F5C]/80 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm z-10">
@@ -94,7 +94,7 @@ export default function BeforeAfterSlider({
         >
           <img
             src={beforeImage}
-            alt="Before treatment"
+            alt={`${title} - Initial smile presentation prior to treatment at Zing Dentistry`}
             className="absolute top-0 left-0 max-w-none h-full object-cover"
             style={{ width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%' }}
           />

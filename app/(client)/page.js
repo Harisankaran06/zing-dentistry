@@ -18,65 +18,90 @@ import {
   HeartHandshake,
   MapPin,
   Clock,
+  ArrowRight,
 } from 'lucide-react';
 import GalleryPreview from '@/components/GalleryPreview';
 import Reveal from '@/components/Reveal';
 import FAQSection from '@/components/FAQSection';
 import FloatingQuickActions from '@/components/FloatingQuickActions';
 
+export const metadata = {
+  title: 'Dentist in Anna Nagar East, Chennai | Dental Clinic',
+  description:
+    'Looking for a trusted dentist in Anna Nagar East, Chennai? Zing Dentistry provides gentle root canals, laser teeth whitening, clear aligners & dental implants. Call +91 98415 84996.',
+  alternates: {
+    canonical: 'https://zingdentistry.in',
+  },
+  openGraph: {
+    title: 'Dentist in Anna Nagar East, Chennai | Dental Clinic | Zing Dentistry',
+    description:
+      'Gentle dental clinic in Anna Nagar East, Chennai led by Dr. Vidya. Treatments include laser teeth whitening, microscopic root canals, clear aligners, and dental implants.',
+    url: 'https://zingdentistry.in',
+  },
+};
+
 const services = [
   {
     title: 'General Dentistry',
-    desc: 'Routine checkups, digital X-rays, scaling, cleanings, and preventive care to maintain oral health.',
+    slug: 'general-dentistry-chennai',
+    desc: 'Routine checkups, digital X-rays, ultrasonic scaling, cleanings, and preventive care in Anna Nagar East to maintain lifelong oral health.',
     icon: Smile,
     badge: 'Preventive',
   },
   {
     title: 'Laser Teeth Whitening',
-    desc: 'Safe, in-office whitening treatments that brighten your smile up to 8 shades in under an hour.',
+    slug: 'laser-teeth-whitening-chennai',
+    desc: 'Clinically supervised in-office laser whitening in Chennai that helps remove stubborn enamel stains and brighten your smile.',
     icon: Sparkles,
     badge: 'Cosmetic',
   },
   {
-    title: 'Smile Makeover',
-    desc: 'Complete aesthetic transformations using custom veneers, bonding, and shade matching.',
-    icon: Wand2,
-    badge: 'Popular',
-  },
-  {
-    title: 'Dental Implants',
-    desc: 'Permanent, titanium-supported tooth replacement that looks, feels, and functions like natural teeth.',
-    icon: Zap,
-    badge: 'Restorative',
+    title: 'Microscopic Root Canal',
+    slug: 'root-canal-treatment-anna-nagar',
+    desc: 'Microscopic root canal therapy in Anna Nagar performed with precision optics to treat dental infection and preserve your natural tooth.',
+    icon: ShieldPlus,
+    badge: 'Endodontics',
   },
   {
     title: 'Clear Aligners & Braces',
-    desc: 'Invisible aligners and modern orthodontics to straighten teeth comfortably for teens and adults.',
+    slug: 'clear-aligners-braces-chennai',
+    desc: 'Invisible aligners and modern orthodontics to straighten teeth comfortably and discreetly for teens and adults in Chennai.',
     icon: Wrench,
     featured: true,
     badge: 'Featured',
   },
   {
-    title: 'Microscopic Root Canal',
-    desc: 'Pain-free, single-visit root canal therapy performed with precision optics to preserve natural teeth.',
-    icon: ShieldPlus,
-    badge: 'Pain-Free',
+    title: 'Dental Implants',
+    slug: 'dental-implants-chennai',
+    desc: 'Biocompatible titanium tooth replacement in Anna Nagar East designed to restore chewing stability and natural appearance.',
+    icon: Zap,
+    badge: 'Restorative',
+  },
+  {
+    title: 'Smile Makeover & Veneers',
+    slug: 'smile-makeover-veneers-chennai',
+    desc: 'Custom aesthetic transformations using porcelain veneers, composite bonding, and shade matching tailored to your face.',
+    icon: Wand2,
+    badge: 'Popular',
   },
   {
     title: 'Pediatric Dentistry',
-    desc: 'Gentle, child-friendly dental care in a warm, comforting environment kids actually look forward to.',
+    slug: 'pediatric-dentistry-chennai',
+    desc: 'Gentle, child-friendly dental care in Anna Nagar East in a warm, welcoming environment designed for young patients.',
     icon: Baby,
     badge: 'Kids Care',
   },
   {
-    title: 'Painless Oral Surgery',
-    desc: 'Precision wisdom tooth extractions and minor surgical care performed with minimal discomfort.',
+    title: 'Oral Surgery & Wisdom Teeth',
+    slug: 'oral-surgery-wisdom-teeth-chennai',
+    desc: 'Wisdom tooth extractions and minor oral surgical procedures performed with local anesthesia and supportive aftercare.',
     icon: Stethoscope,
     badge: 'Surgical',
   },
   {
     title: 'Porcelain Veneers & Crowns',
-    desc: 'High-grade ceramic veneers and crowns crafted for strength, durability, and natural brilliance.',
+    slug: 'porcelain-crowns-bridges-chennai',
+    desc: 'High-grade ceramic veneers and crowns crafted for strength, durability, and natural appearance to protect weakened teeth.',
     icon: Gem,
     badge: 'Aesthetic',
   },
@@ -86,7 +111,7 @@ const testimonials = [
   {
     name: 'Priya Sundaram',
     role: 'Verified Patient',
-    text: 'Dr. Vidya and the staff made my root canal completely pain-free! The clinic is spotless, high-tech, and super welcoming.',
+    text: 'Dr. Vidya and the staff made my root canal treatment so comfortable! The clinic is spotless, modern, and super welcoming.',
     rating: 5,
     tag: 'Root Canal Therapy',
   },
@@ -108,8 +133,8 @@ const testimonials = [
 
 const trustBadges = [
   { icon: Award, title: '15+ Years', desc: 'Clinical Excellence' },
-  { icon: Shield, title: '100% Sterile', desc: 'Hospital-Grade Safety' },
-  { icon: HeartHandshake, title: 'Painless Tech', desc: 'Gentle Patient Care' },
+  { icon: Shield, title: 'Sterile Care', desc: 'Strict Clinic Safety' },
+  { icon: HeartHandshake, title: 'Gentle Care', desc: 'Patient-First Focus' },
   { icon: Smile, title: '5,000+', desc: 'Smiles Transformed' },
 ];
 
@@ -132,23 +157,22 @@ export default function Home() {
               <Reveal>
                 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/15 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider text-[#F0507B]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Modern Dental Care · Annanagar East, Chennai</span>
+                  <span>Modern Dental Care · Anna Nagar East, Chennai</span>
                 </div>
               </Reveal>
 
               <Reveal delay={100}>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-white leading-tight">
-                  Your Smile Deserves <br className="hidden sm:inline" />
+                  Dentist & Dental Clinic in <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F0507B] via-pink-300 to-purple-200">
-                    Painless & Radiant
-                  </span>{' '}
-                  Care.
+                    Anna Nagar East, Chennai
+                  </span>
                 </h1>
               </Reveal>
 
               <Reveal delay={150}>
                 <p className="text-base sm:text-lg text-purple-100/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-light">
-                  Experience gentle, state-of-the-art dental treatments tailored for your entire family. From laser whitening to invisible aligners and pain-free root canals.
+                  Welcome to Zing Dentistry. Experience gentle, modern dental treatments tailored for your entire family in Anna Nagar East. From laser teeth whitening and invisible aligners to microscopic root canals and dental implants.
                 </p>
               </Reveal>
 
@@ -179,8 +203,8 @@ export default function Home() {
                 <div className="relative mx-auto max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl text-left space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="text-lg font-serif font-bold text-white">Zing Dental Clinic</h2>
-                      <p className="text-xs text-purple-200">Annanagar East, Chennai</p>
+                      <p className="text-lg font-serif font-bold text-white">Zing Dentistry Clinic</p>
+                      <p className="text-xs text-purple-200">Anna Nagar East, Chennai</p>
                     </div>
                     <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
                   </div>
@@ -203,7 +227,7 @@ export default function Home() {
 
                   <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-purple-200">
                     <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#F0507B]" /> Mon–Sat 10am - 8pm
+                      <Clock className="w-3.5 h-3.5 text-[#F0507B]" /> Mon–Sat: 10:00 AM – 8:00 PM
                     </span>
                     <span className="flex items-center gap-1 text-yellow-300 font-bold">
                       <Star className="w-3.5 h-3.5 fill-yellow-300" /> 4.9 (500+ Reviews)
@@ -225,10 +249,10 @@ export default function Home() {
                 Comprehensive Treatments
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#3D1F5C] mt-3">
-                Our Dental Services
+                Comprehensive Dental Services in Anna Nagar East
               </h2>
               <p className="text-sm text-gray-600 mt-2">
-                Delivering advanced aesthetic and clinical dentistry with a gentle, patient-first touch.
+                Delivering advanced aesthetic, restorative, and clinical dentistry in Anna Nagar East, Chennai with a gentle, patient-first touch.
               </p>
             </div>
           </Reveal>
@@ -258,15 +282,23 @@ export default function Home() {
                       </div>
 
                       <h3 className="font-serif font-bold text-lg text-[#3D1F5C] mb-2">
-                        {s.title}
+                        <Link href={`/services/${s.slug}`} className="hover:text-[#F0507B] transition-colors">
+                          {s.title}
+                        </Link>
                       </h3>
                       <p className="text-xs text-gray-600 leading-relaxed mb-4">{s.desc}</p>
                     </div>
 
-                    <div className="pt-3 border-t border-pink-50 flex items-center justify-between">
+                    <div className="pt-3 border-t border-pink-50 flex items-center justify-between text-xs">
+                      <Link
+                        href={`/services/${s.slug}`}
+                        className="font-semibold text-gray-600 hover:text-[#3D1F5C] transition-colors"
+                      >
+                        Service Details
+                      </Link>
                       <Link
                         href="/book"
-                        className="text-xs font-bold text-[#F0507B] hover:text-[#e13f68] flex items-center gap-1 group"
+                        className="font-bold text-[#F0507B] hover:text-[#e13f68] flex items-center gap-1 group"
                       >
                         Book Visit <span className="transition-transform group-hover:translate-x-1">→</span>
                       </Link>
@@ -275,6 +307,16 @@ export default function Home() {
                 </Reveal>
               );
             })}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#3D1F5C] hover:text-[#F0507B] bg-white border border-pink-200 hover:border-[#F0507B] px-6 py-3 rounded-full transition-all shadow-sm"
+            >
+              <span>Explore All Dental Treatments & Pricing Guides</span>
+              <ArrowRight className="w-4 h-4 text-[#F0507B]" />
+            </Link>
           </div>
         </div>
       </section>
@@ -288,7 +330,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-[#F0507B]/30 rounded-3xl blur-2xl transform rotate-3" />
                 <img
                   src="/images/img.new.PNG"
-                  alt="Dr. Vidya - Zing Dentistry"
+                  alt="Dr. Vidya, Chief Dental Surgeon at Zing Dentistry clinic in Anna Nagar East, Chennai"
                   className="relative rounded-3xl shadow-2xl border-4 border-white/20 w-full object-cover max-h-[420px]"
                 />
               </div>
@@ -299,17 +341,17 @@ export default function Home() {
                 Lead Dentist Profile
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white">
-                Meet Dr. Vidya (BDS)
+                Meet Dr. Vidya (BDS) — Experienced Dentist in Anna Nagar
               </h2>
               <p className="text-sm text-purple-100/90 leading-relaxed">
-                With over a decade of clinical experience in family and cosmetic dentistry, Dr. Vidya and the Zing Dentistry team are devoted to providing warm, gentle, and transparent oral healthcare for every patient.
+                With over a decade of clinical experience in family, cosmetic, and restorative dentistry, Dr. Vidya and the Zing Dentistry team are devoted to providing warm, gentle, and transparent oral healthcare for patients across Anna Nagar East, Shenoy Nagar, Kilpauk, and central Chennai.
               </p>
 
               <div className="space-y-3 pt-2">
                 {[
                   'BDS Certified with advanced training in aesthetic & endodontic dentistry',
-                  'Specialized in pain-free, anxiety-free treatments for kids and adults',
-                  'Strict hospital-grade sterilization with 100% single-use disposable packs',
+                  'Focused on gentle, patient-centered care for children and adults',
+                  'Strict sterilization protocols with single-use disposable packs',
                   'Transparent diagnosis with intraoral cameras & clear step-by-step guidance',
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm text-purple-100">
@@ -342,7 +384,7 @@ export default function Home() {
                 Interactive Showcase
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#3D1F5C] mt-3">
-                Real Patient Smile Transformations
+                Real Patient Smile Transformations in Chennai
               </h2>
               <p className="text-sm text-gray-600 mt-2">
                 Drag the slider handles below to compare actual Before & After dental transformation results.
@@ -365,7 +407,7 @@ export default function Home() {
                 Patient Stories
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#3D1F5C] mt-3">
-                What Our Patients Say
+                What Our Patients Say — Patient Reviews
               </h2>
             </div>
           </Reveal>
@@ -408,36 +450,47 @@ export default function Home() {
 
       {/* Contact & Location Strip */}
       <section id="contact" className="py-16 bg-[#3D1F5C] text-white scroll-mt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <div className="space-y-2">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
-                <MapPin className="w-5 h-5" />
-                <h3>Clinic Location</h3>
-              </div>
-              <p className="text-sm text-purple-100">Annanagar East, Chennai, Tamil Nadu</p>
-            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-8 text-center md:text-left">
+              Visit Our Dental Clinic in Anna Nagar East, Chennai
+            </h2>
           </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <Reveal>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
+                  <MapPin className="w-5 h-5" />
+                  <h3 className="text-white text-base">Clinic Location</h3>
+                </div>
+                <p className="text-sm text-purple-100">Anna Nagar East, Chennai, Tamil Nadu, India</p>
+              </div>
+            </Reveal>
 
-          <Reveal delay={100}>
-            <div className="space-y-2">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
-                <Clock className="w-5 h-5" />
-                <h3>Working Hours</h3>
+            <Reveal delay={100}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
+                  <Clock className="w-5 h-5" />
+                  <h3 className="text-white text-base">Working Hours</h3>
+                </div>
+                <p className="text-sm text-purple-100">Mon–Sat: 10:00 AM – 8:00 PM</p>
               </div>
-              <p className="text-sm text-purple-100">Mon–Sat: 10:00 AM – 8:00 PM</p>
-            </div>
-          </Reveal>
+            </Reveal>
 
-          <Reveal delay={200}>
-            <div className="space-y-2">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
-                <Phone className="w-5 h-5" />
-                <h3>Contact Phone</h3>
+            <Reveal delay={200}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-[#F0507B] font-bold">
+                  <Phone className="w-5 h-5" />
+                  <h3 className="text-white text-base">Contact Phone</h3>
+                </div>
+                <p className="text-sm text-purple-100">
+                  <a href="tel:+919841584996" className="hover:text-white transition-colors">
+                    +91 98415 84996
+                  </a>
+                </p>
               </div>
-              <p className="text-sm text-purple-100">+91 98415 84996</p>
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
         </div>
       </section>
 
@@ -446,10 +499,10 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-4">
           <Reveal>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-3">
-              Ready for a Brighter, Pain-Free Smile?
+              Ready for a Brighter, Healthier Smile in Anna Nagar?
             </h2>
             <p className="text-purple-100 text-sm sm:text-base mb-8 max-w-lg mx-auto">
-              Book your consultation with Dr. Vidya today. Friendly care, modern technology, zero anxiety.
+              Book your consultation with Dr. Vidya today. Friendly care, modern technology, and a gentle touch.
             </p>
             <Link
               href="/book"
